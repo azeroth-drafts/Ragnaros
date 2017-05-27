@@ -9,6 +9,13 @@ use Mix.Config
 config :ragnaros,
   ecto_repos: [Ragnaros.Repo]
 
+# Configure your database
+config :ragnaros, Ragnaros.Repo,
+  adapter: EctoMnesia.Adapter
+
+# Configure Mnesia data dir
+config :mnesia, :dir, 'priv/data/mnesia'
+
 # Configures the endpoint
 config :ragnaros, Ragnaros.Web.Endpoint,
   url: [host: "localhost"],

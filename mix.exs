@@ -17,7 +17,7 @@ defmodule Ragnaros.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {Ragnaros.Application, []},
-     extra_applications: [:logger, :runtime_tools]]
+     extra_applications: [:logger, :runtime_tools, :ecto_mnesia]]
   end
 
   # Specifies which paths to compile per environment.
@@ -31,8 +31,8 @@ defmodule Ragnaros.Mixfile do
     [{:phoenix, "~> 1.3.0-rc"},
      {:phoenix_pubsub, "~> 1.0"},
      {:phoenix_ecto, "~> 3.2"},
-     {:postgrex, ">= 0.0.0"},
      {:gettext, "~> 0.11"},
+     {:ecto_mnesia, "~> 0.9.0"},
      {:cowboy, "~> 1.0"}]
   end
 
