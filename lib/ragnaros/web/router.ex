@@ -5,6 +5,8 @@ defmodule Ragnaros.Web.Router do
     plug :accepts, ["json"]
   end
 
+  resources "/users", UserController
+
   scope "/auth", Ragnaros.Web do
     pipe_through :api
 
