@@ -1,42 +1,61 @@
 defmodule Ragnaros.Web.AuthController do
   use Ragnaros.Web, :controller
 
+  @socket "ws://localhost:4000/ws"
+
   def auth(conn, %{"user" => user_name}) do
-    #user = Ragnaros.Repo.get_by(Ragnaros.Accounts.User, name: user_name)
+    user = Ragnaros.Repo.get_by(Ragnaros.Accounts.User, name: user_name)
     json conn, (
       cond do
         not user_exists?(user) ->
-          %{success: true,
-            token: "token",
-            socket: "socket",
-            message: ""}
+          user =
+            Ragnaros.Repo.insert! %Ragnaros.Accounts.User{name: user_name}
+          success(user.id)
 
         connected?(user) ->
-          %{success: false,
-            token: "",
-            socket: "",
-            message: "Already loged in"}
+          fail ("User `" <> user.name <> "` already logged in!")
 
         true ->
-          %{success: true,
-            token: "",
-            socket: "socket",
-            message: "Already loged in"}
+          success(user.id)
       end
     )
   end
 
   def refresh(conn, %{"token" => token}) do
-    json conn, %{token: token}
+    user = Ragnaros.Repo.get(Ragnaros.Accounts.User, token)
+    json conn,
+    (cond do
+      user_exists?(user) ->
+        success(token)
+      true ->
+          fail("Fail to authenticate!")
+      end
+    )
   end
 
-  def user_exists?(user) do
-    # FIXME
-    true
+  def refresh(conn, _) do
+    json conn, fail("watever")
   end
 
-  def connected?(user) do
-    # FIXME
+  defp user_exists?(user) do
+    user != nil
+  end
+
+  defp connected?(user) do
     false
+  end
+
+  defp success(token) do
+    %{success: true,
+      token: token,
+      socket: @socket,
+      message: ""}
+  end
+
+  defp fail(reason) do
+    %{success: false,
+      token: "",
+      socket: "",
+      message: reason}
   end
 end
