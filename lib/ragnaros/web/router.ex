@@ -5,7 +5,11 @@ defmodule Ragnaros.Web.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", Ragnaros.Web do
+  scope "/auth", Ragnaros.Web do
     pipe_through :api
+
+    post "/", AuthController, :auth
+
+    post "/refresh", AuthController, :refresh
   end
 end
