@@ -144,4 +144,68 @@ defmodule Ragnaros.GameTest do
       assert %Ecto.Changeset{} = Game.change_instance(instance)
     end
   end
+
+  describe "selections" do
+    alias Ragnaros.Game.Selection
+
+    @valid_attrs %{card_id: 42, game_id: 42, user_id: 42}
+    @update_attrs %{card_id: 43, game_id: 43, user_id: 43}
+    @invalid_attrs %{card_id: nil, game_id: nil, user_id: nil}
+
+    def selection_fixture(attrs \\ %{}) do
+      {:ok, selection} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Game.create_selection()
+
+      selection
+    end
+
+    test "list_selections/0 returns all selections" do
+      selection = selection_fixture()
+      assert Game.list_selections() == [selection]
+    end
+
+    test "get_selection!/1 returns the selection with given id" do
+      selection = selection_fixture()
+      assert Game.get_selection!(selection.id) == selection
+    end
+
+    test "create_selection/1 with valid data creates a selection" do
+      assert {:ok, %Selection{} = selection} = Game.create_selection(@valid_attrs)
+      assert selection.card_id == 42
+      assert selection.game_id == 42
+      assert selection.user_id == 42
+    end
+
+    test "create_selection/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Game.create_selection(@invalid_attrs)
+    end
+
+    test "update_selection/2 with valid data updates the selection" do
+      selection = selection_fixture()
+      assert {:ok, selection} = Game.update_selection(selection, @update_attrs)
+      assert %Selection{} = selection
+      assert selection.card_id == 43
+      assert selection.game_id == 43
+      assert selection.user_id == 43
+    end
+
+    test "update_selection/2 with invalid data returns error changeset" do
+      selection = selection_fixture()
+      assert {:error, %Ecto.Changeset{}} = Game.update_selection(selection, @invalid_attrs)
+      assert selection == Game.get_selection!(selection.id)
+    end
+
+    test "delete_selection/1 deletes the selection" do
+      selection = selection_fixture()
+      assert {:ok, %Selection{}} = Game.delete_selection(selection)
+      assert_raise Ecto.NoResultsError, fn -> Game.get_selection!(selection.id) end
+    end
+
+    test "change_selection/1 returns a selection changeset" do
+      selection = selection_fixture()
+      assert %Ecto.Changeset{} = Game.change_selection(selection)
+    end
+  end
 end
