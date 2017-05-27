@@ -208,4 +208,68 @@ defmodule Ragnaros.GameTest do
       assert %Ecto.Changeset{} = Game.change_selection(selection)
     end
   end
+
+  describe "decks" do
+    alias Ragnaros.Game.Deck
+
+    @valid_attrs %{cards: [], game_id: 42, user_id: 42}
+    @update_attrs %{cards: [], game_id: 43, user_id: 43}
+    @invalid_attrs %{cards: nil, game_id: nil, user_id: nil}
+
+    def deck_fixture(attrs \\ %{}) do
+      {:ok, deck} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Game.create_deck()
+
+      deck
+    end
+
+    test "list_decks/0 returns all decks" do
+      deck = deck_fixture()
+      assert Game.list_decks() == [deck]
+    end
+
+    test "get_deck!/1 returns the deck with given id" do
+      deck = deck_fixture()
+      assert Game.get_deck!(deck.id) == deck
+    end
+
+    test "create_deck/1 with valid data creates a deck" do
+      assert {:ok, %Deck{} = deck} = Game.create_deck(@valid_attrs)
+      assert deck.cards == []
+      assert deck.game_id == 42
+      assert deck.user_id == 42
+    end
+
+    test "create_deck/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Game.create_deck(@invalid_attrs)
+    end
+
+    test "update_deck/2 with valid data updates the deck" do
+      deck = deck_fixture()
+      assert {:ok, deck} = Game.update_deck(deck, @update_attrs)
+      assert %Deck{} = deck
+      assert deck.cards == []
+      assert deck.game_id == 43
+      assert deck.user_id == 43
+    end
+
+    test "update_deck/2 with invalid data returns error changeset" do
+      deck = deck_fixture()
+      assert {:error, %Ecto.Changeset{}} = Game.update_deck(deck, @invalid_attrs)
+      assert deck == Game.get_deck!(deck.id)
+    end
+
+    test "delete_deck/1 deletes the deck" do
+      deck = deck_fixture()
+      assert {:ok, %Deck{}} = Game.delete_deck(deck)
+      assert_raise Ecto.NoResultsError, fn -> Game.get_deck!(deck.id) end
+    end
+
+    test "change_deck/1 returns a deck changeset" do
+      deck = deck_fixture()
+      assert %Ecto.Changeset{} = Game.change_deck(deck)
+    end
+  end
 end
