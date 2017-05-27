@@ -9,7 +9,7 @@ defmodule Ragnaros.Game.Card do
     field :cardId, :string
     field :cardSet, :string
     field :cost, :integer
-    field :faction, :string
+    field :playerClass, :string
     field :health, :integer
     field :img, :string
     field :name, :string
@@ -24,7 +24,7 @@ defmodule Ragnaros.Game.Card do
   @doc false
   def changeset(%Card{} = card, attrs) do
     card
-    |> cast(attrs, [:cardId, :name, :cardSet, :type, :faction, :rarity, :cost, :attack, :health, :text, :race, :img])
-    |> validate_required([:cardId, :name, :cardSet, :type, :faction, :rarity, :cost, :attack, :health, :text, :race, :img])
+    |> cast(attrs, [:cardId, :name, :cardSet, :type, :playerClass, :rarity, :cost, :attack, :health, :text, :race, :img])
+    |> validate_required([:cardId, :name, :cardSet, :type, :playerClass, :rarity, :cost, :text, :img])
   end
 end

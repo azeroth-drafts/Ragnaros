@@ -7,7 +7,7 @@ defmodule Ragnaros.Repo.Migrations.CreateRagnaros.Game.Card do
       add :name, :string
       add :cardSet, :string
       add :type, :string
-      add :faction, :string
+      add :playerClass, :string
       add :rarity, :string
       add :cost, :integer
       add :attack, :integer
