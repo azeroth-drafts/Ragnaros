@@ -33,6 +33,7 @@ defmodule Ragnaros.Mixfile do
      {:phoenix_ecto, "~> 3.2"},
      {:gettext, "~> 0.11"},
      {:ecto_mnesia, "~> 0.9.0"},
+     {:cors_plug, "~> 1.3"},
      {:cowboy, "~> 1.0"}]
   end
 
