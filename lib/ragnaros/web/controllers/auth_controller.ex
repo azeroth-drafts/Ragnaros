@@ -1,7 +1,7 @@
 defmodule Ragnaros.Web.AuthController do
   use Ragnaros.Web, :controller
 
-  @socket "ws://localhost:4000/ws"
+  @socket "ws://localhost:4000"
 
   def auth(conn, %{"user" => user_name}) do
     user = Ragnaros.Repo.get_by(Ragnaros.Accounts.User, name: user_name)

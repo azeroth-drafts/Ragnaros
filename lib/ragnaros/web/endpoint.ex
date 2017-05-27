@@ -1,9 +1,9 @@
 defmodule Ragnaros.Web.Endpoint do
   use Phoenix.Endpoint, otp_app: :ragnaros
 
-  plug CORSPlug
-
   socket "/socket", Ragnaros.Web.UserSocket
+
+  plug CORSPlug
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -31,6 +31,12 @@ defmodule Ragnaros.Web.Endpoint do
   plug Plug.Head
 
   plug Ragnaros.Web.Router
+
+  plug Plug.Session,
+    store: :cookie,
+    key: "_chat_key",
+    signing_salt: "LH6XmqGb",
+    encryption_salt: "CIPZg4Qo"
 
   @doc """
   Dynamically loads configuration from the system environment

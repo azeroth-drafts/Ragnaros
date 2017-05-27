@@ -2,11 +2,11 @@ defmodule Ragnaros.Web.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", Ragnaros.Web.RoomChannel
+  channel "room:*", Ragnaros.Web.RoomChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
-  # transport :longpoll, Phoenix.Transports.LongPoll
+  transport :longpoll, Phoenix.Transports.LongPoll
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
@@ -19,7 +19,7 @@ defmodule Ragnaros.Web.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(user, socket) do
+  def connect(_params, socket) do
     {:ok, socket}
   end
 
