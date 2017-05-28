@@ -10,6 +10,8 @@ defmodule Ragnaros.Application do
     children = [
       # Start the Ecto repository
       supervisor(Ragnaros.Repo, []),
+      # Start the Games Supervisor
+      supervisor(Ragnaros.GamesSupervisor, []),
       # Start the endpoint when the application starts
       supervisor(Ragnaros.Web.Endpoint, []),
       # Start your own worker by calling: Ragnaros.Worker.start_link(arg1, arg2, arg3)
