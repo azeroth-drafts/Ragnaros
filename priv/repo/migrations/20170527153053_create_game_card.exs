@@ -15,8 +15,6 @@ defmodule Ragnaros.Repo.Migrations.CreateRagnaros.Game.Card do
       add :text, :string
       add :race, :string
       add :img, :string
-
-      timestamps()
     end
 
   end
