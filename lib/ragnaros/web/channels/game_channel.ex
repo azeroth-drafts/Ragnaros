@@ -10,6 +10,7 @@ defmodule Ragnaros.Web.GameChannel do
   for the requested topic
   """
   def join("game:" <> game_id, %{"token" => id}, socket) do
+    IO.inspect game_id
     Ragnaros.Registry.register(id, self())
     Ragnaros.Tavern.registered(id)
     {:ok, socket}

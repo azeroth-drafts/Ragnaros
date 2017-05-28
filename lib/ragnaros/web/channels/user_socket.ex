@@ -3,6 +3,7 @@ defmodule Ragnaros.Web.UserSocket do
 
   ## Channels
   channel "tavern", Ragnaros.Web.TavernChannel
+  channel "game:*", Ragnaros.Web.GameChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

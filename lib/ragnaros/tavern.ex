@@ -5,7 +5,7 @@ defmodule Ragnaros.Tavern do
 
   alias Ragnaros.Registry
 
-  @full_lobby 4
+  @full_lobby 1
 
   # Client API
 
@@ -33,8 +33,14 @@ defmodule Ragnaros.Tavern do
     GenServer.cast(__MODULE__, {:join_lobby, {user_id, pid}})
   end
 
-  def join_game(lobby) do
-    GenServer.cast(__MODULE__, {:join_game, lobby})
+  defp join_game(lobby) do
+    cur_pid = self()
+    Task.async(fn ->
+      {:ok, gameroom_pid} =
+        Supervisor.start_child(Ragnaros.GamesSupervisor,
+          worker(GameRoom, [lobby], restart: :temporary))
+      send(cur_pid, {:game_room, lobby, gameroom_pid})
+     end) |> Task.await()
   end
 
   # Server callbacks
@@ -49,40 +55,40 @@ defmodule Ragnaros.Tavern do
     {:reply, result, state}
   end
 
-  def handle_call({:join_game, lobby}, state) do
-    {:ok, gameroom_pid} = Supervisor.start_child(Ragnaros.GamesSupervisor, worker(GameRoom, [lobby], restart: :temporary))
-
-    {:reply, {:ok, gameroom_pid}, state}
-  end
-
-  def handle_cast({:join_lobby, {user_id, channel_pid}}, {in_lobby, in_game}) do
+  def handle_cast({:join_lobby, {user_id, channel_pid}}, {in_lobby, in_game} = state) do
     in_lobby = [user_id | in_lobby]
     Registry.register(user_id, channel_pid) #cast
-    if length(Map.keys(in_lobby)) == @full_lobby do
-      {:ok, game_pid} = join_game(in_lobby)
-      lobby_users_with_game = Enum.reduce(in_lobby, %{}, fn el, map ->
-        Ragnaros.Registry.notify_game_found(el)
-        put_in(map, [el], game_pid)
-      end)
-      {:noreply, {[], Map.merge(in_game, lobby_users_with_game)}}
+    if length(in_lobby) == @full_lobby do
+      join_game(in_lobby)
+      {:noreply, {[], in_game}}
     else
       {:noreply, {in_lobby, in_game}}
     end
   end
 
-  def handle_cast({:accept, user_id}, {_, in_game}) do
+  def handle_cast({:accept, user_id}, {_, in_game} = state) do
     game_pid = in_game[user_id]
     GameRoom.accept(game_pid, user_id)
+    {:noreply, state}
   end
 
-  def handle_cast({:reject, user_id}, {_, in_game}) do
+  def handle_cast({:reject, user_id}, {_, in_game} = state) do
     game_pid = in_game[user_id]
     GameRoom.reject(game_pid, user_id)
+    {:noreply, state}
   end
 
-  def handle_cast({:remove_user, id}, {_, in_game}) do
+  def handle_cast({:remove_user, id}, {list, in_game}) do
     new = Map.delete(in_game, id)
     Ragnaros.Registry.notify_game_canceled(id)
-    {:noreply, new}
+    {:noreply, {list, new}}
+  end
+
+  def handle_info({:game_room, in_lobby, gameroom_pid}, {list, in_game}) do
+    lobby_users_with_game = Enum.reduce(in_lobby, %{}, fn el, map ->
+      Ragnaros.Registry.notify_game_found(el)
+      put_in(map, [el], gameroom_pid)
+    end)
+    {:noreply, {list, Map.merge(in_game, lobby_users_with_game)}}
   end
 end

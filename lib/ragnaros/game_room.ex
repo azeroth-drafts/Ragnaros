@@ -1,6 +1,8 @@
 defmodule GameRoom do
   use GenServer
 
+  @lobby 1
+
   def ready(pid) do
     GenServer.cast(pid, :ready)
   end
@@ -17,8 +19,9 @@ defmodule GameRoom do
     GenServer.cast(game_pid, {:reject, user_id})
   end
 
-  def start_link() do
-    GenServer.start_link(__MODULE__, nil)
+  def start_link(args) do
+    IO.inspect(args)
+    GenServer.start_link(__MODULE__, args)
   end
 
   # Server callbacks
@@ -34,10 +37,10 @@ defmodule GameRoom do
   end
 
   def handle_cast({:accepted, user_id}, state) do
-    accepted_hash = get_in(state, [:accepted, user_id])
-    accepted = 1 + accepted_hash |> Map.keys |> length
+    accepted_hash = get_in(state, [:accepted])
+    accepted = 1 + (accepted_hash |> Enum.count)
 
-    if accepted == 4 do
+    if accepted == @lobby do
       Ragnaros.Registry.notify_game_started(state[:lobby], state.game_id)
     end
 

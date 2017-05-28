@@ -10,7 +10,7 @@ defmodule Ragnaros.Registry do
   end
 
   def notify_game_found(user_id) do
-    GenServer.cast(__MODULE__, {:notify_game_found, user_id})
+    GenServer.cast(__MODULE__, {:notify_found, user_id})
   end
 
   def notify_game_started(lobby, game_id) do
@@ -20,12 +20,12 @@ defmodule Ragnaros.Registry do
   end
 
   def start_link() do
-    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   # Server callbacks
 
-  def init() do
+  def init(_) do
     {:ok, %{}}
   end
 
