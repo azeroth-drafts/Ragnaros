@@ -2,7 +2,7 @@ defmodule Ragnaros.Web.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "tavern", Ragnaros.Web.TavernChannle
+  channel "tavern", Ragnaros.Web.TavernChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
