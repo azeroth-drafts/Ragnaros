@@ -16,7 +16,7 @@ defmodule Ragnaros.Web.GameChannel do
     {:ok, socket}
   end
 
-  def handle_in("selected", %{"token" => id, "card_id" => card_id}, socket) do
+  def handle_in("selected", %{"token" => id, "cardId" => card_id}, socket) do
     Ragnaros.Tavern.selected(id, card_id)
     {:ok, socket}
   end

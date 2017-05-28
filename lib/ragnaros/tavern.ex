@@ -111,4 +111,3 @@ defmodule Ragnaros.Tavern do
     {:noreply, state}
   end
 end
-

@@ -15,9 +15,9 @@ defmodule GameRoom do
     GenServer.cast(game_pid, {:accepted, user_id})
   end
 
-  def get_id(pid) do
-    GenServer.call(pid, :get_game_id)
-  end
+  # def get_id(pid) do
+  #   GenServer.call(pid, :get_game_id)
+  # end
 
   def reject(game_pid, user_id) do
     GenServer.cast(game_pid, {:reject, user_id})
@@ -35,12 +35,12 @@ defmodule GameRoom do
   def init(lobby) do
     {:ok, game} = Ragnaros.Repo.insert(%Ragnaros.Game.Instance{players: lobby})
 
-    {:ok, %{accepted: %{}, lobby: lobby, game_id: game.id, registered: 0}, draft_cards: []}
+    {:ok, %{accepted: %{}, lobby: lobby, game_id: game.id, registered: 0, draft_cards: []}}
   end
 
-  def handle_call(:get_game_id, state) do
-    {:ok, state[:game_id], state}
-  end
+  # def handle_call(:get_game_id, _, state) do
+  #   {:reply, state[:game_id], state}
+  # end
 
   def handle_cast({:accepted, user_id}, state) do
     accepted_hash = get_in(state, [:accepted])
@@ -64,10 +64,9 @@ defmodule GameRoom do
   end
 
   def handle_cast(:registered, state) do
-    new = get_and_update_in(state, [:registered], &(&1 + 1))
-    if new == @lobby do
-      send(self(), :registered)
-    end
+    new = update_in(state, [:registered], &(&1 + 1))
+    IO.inspect new
+    if new.registered == @lobby, do: send(self(), :registered)
     {:noreply, new}
   end
 

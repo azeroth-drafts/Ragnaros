@@ -52,9 +52,10 @@ defmodule Ragnaros.Mixfile do
                      System.cmd("mkdir", ["-p", "priv/data/mnesia"]) end,
                     "ecto.create",
                     "ecto.migrate",
-                    "run priv/repo/seeds.exs"],
+                    "run priv/repo/seeds.exs",
+		    "cards.import"],
+     "import_cards": ["phx.server", "cards.import"],
      "ecto.reset": ["ecto.drop", "ecto.setup"],
-     "test": ["ecto.create --quiet", "ecto.migrate", "test"],
-     "import_cards": ["phx.server", "cards.import"]]
+     "test": ["ecto.create --quiet", "ecto.migrate", "test"]]
   end
 end
