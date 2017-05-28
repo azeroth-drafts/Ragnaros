@@ -19,6 +19,13 @@ defmodule Ragnaros.Registry do
     end )
   end
 
+  def notify_draft(lobby, draft_cards) do
+    Enum.zip(lobby, draft_cards)
+    |>  Enum.each(fn {user_id, cards} ->
+      GenServer.cast(__MODULE__, {:notify_draft_cards, user_id, cards})
+    end)
+  end
+
   def start_link() do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
@@ -49,6 +56,12 @@ defmodule Ragnaros.Registry do
   def handle_cast({:notify_found, user_id}, state) do
     channel_pid = state[user_id]
     send(channel_pid, :game_found)
+    {:noreply, state}
+  end
+
+  def handle_cast({:notify_draft_cards, user_id, cards}, state) do
+    channel_pid = state[user_id]
+    send(channel_pid, :draft_cards)
     {:noreply, state}
   end
 end
