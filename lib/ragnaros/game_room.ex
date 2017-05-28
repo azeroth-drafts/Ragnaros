@@ -79,7 +79,7 @@ defmodule GameRoom do
     end)
     new = update_in(new, [:removed], &(&1 + 1))
     case new.removed do
-      x when x == @lobby -> send(self(), :draft_finish)
+      x when x == 15 * @lobby -> send(self(), :draft_finish)
       _ -> send(self(), :removed)
     end
     {:noreply, new}
