@@ -38,14 +38,11 @@ defmodule Ragnaros.Registry do
   end
 
   def notify_draft(lobby, draft_cards) do
-    lobby |> Enum.each(fn user_id ->
-      GenServer.cast(__MODULE__, {:notify_draft_cards, user_id, draft_cards[user_id]})
-    end)
-  end
-
-  def notify_draft(lobby, draft_cards) do
-    lobby |> Enum.each(fn user_id ->
-      GenServer.cast(__MODULE__, {:notify_draft_cards, user_id, draft_cards[user_id]})
+    lobby
+    |> Enum.each(
+      fn user_id ->
+        GenServer.cast(__MODULE__, {:notify_draft_cards,
+                                    user_id, draft_cards[user_id]})
     end)
   end
 
@@ -83,6 +80,7 @@ defmodule Ragnaros.Registry do
   end
 
   def handle_cast({:notify_draft_cards, user_id, cards}, state) do
+    IO.inspect cards
     channel_pid = state[user_id]
     send(channel_pid, {:draft_finish, cards})
     {:noreply, state}

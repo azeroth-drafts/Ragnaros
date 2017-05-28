@@ -94,9 +94,10 @@ defmodule Ragnaros.Tavern do
     {:noreply, {list, new}}
   end
 
-  def handle_cast({:registered, user_id}, {_, in_game}) do
+  def handle_cast({:registered, user_id}, {_, in_game} = state) do
     game_pid = in_game[user_id]
     GameRoom.registered(game_pid)
+    {:noreply, state}
   end
 
   def handle_cast({:select_card, user_id, card_id}, {_, in_game} = state) do

@@ -65,21 +65,24 @@ defmodule GameRoom do
 
   def handle_cast(:registered, state) do
     new = update_in(state, [:registered], &(&1 + 1))
-    IO.inspect new
     if new.registered == @lobby, do: send(self(), :registered)
     {:noreply, new}
   end
 
   def handle_cast({:save_selection, user_id, card_id}, state) do
     game_id = state[:game_id]
+
     insert_card(user_id, card_id, game_id)
+
     new = update_in(state, [:draft_cards, user_id], fn(cards) ->
       idx = Enum.find(cards, fn(x) -> x.id == card_id end)
       List.delete(cards, idx)
     end)
     new = update_in(new, [:removed], &(&1 + 1))
+
+    IO.inspect(new)
     case new.removed do
-      x when x == @lobby -> send(self(), :draft_finish)
+      x when x == 15 -> send(self(), :draft_finish)
       _ -> send(self(), :removed)
     end
     {:noreply, new}
@@ -100,18 +103,23 @@ defmodule GameRoom do
   end
 
   def handle_info(:registered, state) do
-    new = update_in(state, [:draft_cards], fn _ ->
-      Enum.reduce(state.lobby, %{}, fn(x, acc) ->
-        Map.merge(acc, %{x => Ragnaros.Packs.generate_pack})
-      end)
-    end)
-    Ragnaros.Registry.notify_draft(state[:lobby], state[:draft_cards])
+    stacks =
+      (for user <- state.lobby, do: {user, Ragnaros.Packs.generate_pack})
+      |> Enum.into(Map.new())
+
+    new = state |> Map.put(:draft_cards, stacks)
+
+    Ragnaros.Registry.notify_draft(new[:lobby], stacks)
 
     {:noreply, new}
   end
 
   def handle_info(:removed, state) do
-    new_lobby = state.lobby ++ state.lobby |> Enum.drop(1) |> Enum.take(@lobby)
+    new_lobby =
+      state.lobby ++ state.lobby
+      |> Enum.drop(1)
+      |> Enum.take(@lobby)
+
     new = update_in(state, [:lobby], new_lobby)
     Ragnaros.Registry.notify_draft(state[:lobby], state[:draft_cards])
 

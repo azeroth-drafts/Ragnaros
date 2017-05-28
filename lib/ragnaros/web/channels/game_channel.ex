@@ -27,13 +27,16 @@ defmodule Ragnaros.Web.GameChannel do
   end
 
   def handle_info({:draft, cards}, socket) do
-    push socket, "draft", %{cards: cards}
-    IO.inspect cards
+    push socket, "draft", %{cards: trim( cards )}
     {:noreply, socket}
   end
 
   def handle_info({:draft_finish, cards}, socket) do
-    push socket, "draft_finish", %{cards: cards}
+    push socket, "draft_finish", %{cards: trim(cards)}
     {:noreply, socket}
+  end
+
+  defp trim(cards) do
+    cards |> Enum.map(&Map.from_struct/1) |> Enum.map(&Map.delete(&1, :__meta__)) |> IO.inspect
   end
 end
