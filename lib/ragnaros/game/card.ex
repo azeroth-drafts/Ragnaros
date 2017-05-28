@@ -17,8 +17,6 @@ defmodule Ragnaros.Game.Card do
     field :rarity, :string
     field :text, :string
     field :type, :string
-
-    timestamps()
   end
 
   @doc false
