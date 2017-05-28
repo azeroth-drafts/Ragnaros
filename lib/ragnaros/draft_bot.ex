@@ -3,13 +3,15 @@ defmodule Ragnaros.Draft.Bot do
 
   @id -1
 
-  def start_link(_) do
-    spawn_link(__MODULE__, :join, %{}, [])
+  def start_link() do
+    pid = spawn_link(__MODULE__, :join, [])
+    {:ok, pid}
   end
 
   def join() do
+    Process.sleep(5000)
     Tavern.join({@id, self()})
-    game_found()
+    wait_for_game()
   end
 
   def wait_for_game() do
@@ -21,14 +23,14 @@ defmodule Ragnaros.Draft.Bot do
 
   def accept() do
     Tavern.accept(@id)
-    game_started()
+    wait_for_start()
   end
 
   def wait_for_start() do
     receive do
       {:game_started, game_id} ->
         Registry.register(@id, self())
-        Tavern.registered(id)
+        Tavern.registered(@id)
         pick_or_finish()
     end
   end

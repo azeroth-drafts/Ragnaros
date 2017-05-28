@@ -42,13 +42,11 @@ defmodule Ragnaros.Tavern do
   end
 
   defp join_game(lobby) do
-    cur_pid = self()
-    Task.async(fn ->
-      {:ok, gameroom_pid} =
-        Supervisor.start_child(Ragnaros.GamesSupervisor,
-          worker(GameRoom, [lobby], restart: :temporary))
-      send(cur_pid, {:game_room, lobby, gameroom_pid})
-     end) |> Task.await()
+    {:ok, gameroom_pid} =
+      Supervisor.start_child(Ragnaros.GamesSupervisor,
+        worker(GameRoom, [lobby], restart: :temporary))
+
+    send(self(), {:game_room, lobby, gameroom_pid})
   end
 
   # Server callbacks

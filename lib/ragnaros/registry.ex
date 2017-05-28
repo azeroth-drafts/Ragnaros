@@ -31,7 +31,7 @@ defmodule Ragnaros.Registry do
 
   def handle_call({:register, user_id, channel_pid}, _, state) do
     new = put_in(state, [user_id], channel_pid)
-    {:replay, :ok, new}
+    {:reply, :ok, new}
   end
 
   def handle_cast({:notify_canceled, user_id}, state) do
