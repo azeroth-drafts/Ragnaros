@@ -33,6 +33,10 @@ defmodule Ragnaros.Tavern do
     GenServer.cast(__MODULE__, {:accept, id})
   end
 
+  def save_deck(id, cards) do
+    GenServer.cast(__MODULE__, {:save_deck, id, cards})
+  end
+
   def reject(id) do
     GenServer.cast(__MODULE__, {:reject, id})
   end
@@ -92,14 +96,6 @@ defmodule Ragnaros.Tavern do
     {:noreply, {list, new}}
   end
 
-  def handle_info({:game_room, in_lobby, gameroom_pid}, {list, in_game}) do
-    lobby_users_with_game = Enum.reduce(in_lobby, %{}, fn el, map ->
-      Ragnaros.Registry.notify_game_found(el)
-      put_in(map, [el], gameroom_pid)
-    end)
-    {:noreply, {list, Map.merge(in_game, lobby_users_with_game)}}
-  end
-
   def handle_cast({:registered, user_id}, {_, in_game}) do
     game_pid = in_game[user_id]
     GameRoom.registered(game_pid)
@@ -109,5 +105,20 @@ defmodule Ragnaros.Tavern do
     game_pid = in_game[user_id]
     GameRoom.save_selection(game_pid, user_id, card_id)
     {:noreply, state}
+  end
+
+  def handle_cast({:save_deck, id, cards}, {_, games} = state) do
+    Task.start(fn ->
+      Ragnaros.Repo.insert(%Ragnaros.Game.Deck{cards: cards, user_id: id, game_id: games[id]})
+    end)
+    {:noreply, state}
+  end
+
+  def handle_info({:game_room, in_lobby, gameroom_pid}, {list, in_game}) do
+    lobby_users_with_game = Enum.reduce(in_lobby, %{}, fn el, map ->
+      Ragnaros.Registry.notify_game_found(el)
+      put_in(map, [el], gameroom_pid)
+    end)
+    {:noreply, {list, Map.merge(in_game, lobby_users_with_game)}}
   end
 end

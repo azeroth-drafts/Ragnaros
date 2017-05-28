@@ -35,7 +35,7 @@ defmodule GameRoom do
   def init(lobby) do
     {:ok, game} = Ragnaros.Repo.insert(%Ragnaros.Game.Instance{players: lobby})
 
-    {:ok, %{accepted: %{}, lobby: lobby, game_id: game.id, registered: 0, draft_cards: []}}
+    {:ok, %{accepted: %{}, lobby: lobby, game_id: game.id, registered: 0, draft_cards: %{}, removed: 0}}
   end
 
   # def handle_call(:get_game_id, _, state) do
@@ -72,20 +72,47 @@ defmodule GameRoom do
 
   def handle_cast({:save_selection, user_id, card_id}, state) do
     game_id = state[:game_id]
+    insert_card(user_id, card_id, game_id)
+    new = update_in(state, [:draft_cards, user_id], fn(cards) ->
+      idx = Enum.find(cards, fn(x) -> x.id == card_id end)
+      List.delete(cards, idx)
+    end)
+    new = update_in(new, [:removed], &(&1 + 1))
+    case new.removed do
+      x when x == @lobby -> send(self(), :draft_finish)
+      _ -> send(self(), :removed)
+    end
+    {:noreply, new}
+  end
+
+  defp insert_card(user_id, card_id, game_id) do
     Task.start(fn ->
       Ragnaros.Repo.insert(
         %Ragnaros.Game.Selection{card_id: card_id,
                                  user_id: user_id,
                                  game_id: game_id})
     end)
-    #TODO remove card_from draft_users
-    {:noreply, state}
+  end
+
+  def handle_info(:draft_finish, state) do
+    game_id = state[:game_id]
+    Tavern.Registry.notify_draft_finished(state.lobby, game_id)
   end
 
   def handle_info(:registered, state) do
-    new = get_and_update_in(state, [:draft_cards], fn _ ->
-      (1..@lobby) |> Enum.map(&(Ragnaros.Packs.generate_pack(&1)))
+    new = update_in(state, [:draft_cards], fn _ ->
+      Enum.reduce(state.lobby, %{}, fn(x, acc) ->
+        Map.merge(acc, %{x => Ragnaros.Packs.generate_pack})
+      end)
     end)
+    Tavern.Registry.notify_draft(state[:lobby], state[:draft_cards])
+
+    {:noreply, new}
+  end
+
+  def handle_info(:removed, state) do
+    new_lobby = state.lobby ++ state.lobby |> Enum.drop(1) |> Enum.take(@lobby)
+    new = update_in(state, [:lobby], new_lobby)
     Tavern.Registry.notify_draft(state[:lobby], state[:draft_cards])
 
     {:noreply, new}
