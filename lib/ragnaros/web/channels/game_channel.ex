@@ -35,11 +35,4 @@ defmodule Ragnaros.Web.GameChannel do
     push socket, "draft_finish", cards
     {:noreply, socket}
   end
-
-  def handle_info({:tick, id, ticks}, socket) do
-    user = ticks[id]
-    push socket, "tick", %{user: user,
-                           others: Map.drop(ticks, [id])}
-    {:noreply, socket}
-  end
 end

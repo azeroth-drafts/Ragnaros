@@ -2,7 +2,7 @@ defmodule Ragnaros.Registry do
   use GenServer
 
   def register(user_id, channel_pid) do
-    GenServer.cast(__MODULE__, {:register, user_id, channel_pid})
+    GenServer.call(__MODULE__, {:register, user_id, channel_pid})
   end
 
   def notify_game_canceled(user_id) do
@@ -16,7 +16,7 @@ defmodule Ragnaros.Registry do
   def notify_game_started(lobby, game_id) do
     lobby |> Enum.each(fn user ->
       GenServer.cast(__MODULE__, {:notify_started, user, game_id})
-    end)
+    end )
   end
 
   def start_link() do
@@ -29,9 +29,9 @@ defmodule Ragnaros.Registry do
     {:ok, %{}}
   end
 
-  def handle_cast({:register, user_id, channel_pid}, state) do
+  def handle_call({:register, user_id, channel_pid}, _, state) do
     new = put_in(state, [user_id], channel_pid)
-    {:noreply, new}
+    {:replay, :ok, new}
   end
 
   def handle_cast({:notify_canceled, user_id}, state) do
