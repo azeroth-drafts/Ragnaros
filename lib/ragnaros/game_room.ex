@@ -78,13 +78,15 @@ defmodule GameRoom do
                                  user_id: user_id,
                                  game_id: game_id})
     end)
+    #TODO remove card_from draft_users
     {:noreply, state}
   end
 
   def handle_info(:registered, state) do
     new = get_and_update_in(state, [:draft_cards], fn _ ->
-      (1..@lobby) |> Enum.map(&(Ragnaros.Packs.generate_basic ++ Ragnaros.Packs.generate_pack(&1)))
+      (1..@lobby) |> Enum.map(&(Ragnaros.Packs.generate_pack(&1)))
     end)
+    Tavern.Registry.notify_draft(state[:lobby], state[:draft_cards])
 
     {:noreply, new}
   end
