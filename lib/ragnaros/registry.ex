@@ -14,6 +14,15 @@ defmodule Ragnaros.Registry do
     end)
   end
 
+  def notify_draft_finished(lobby, game_id) do
+    basic_cards = Ragnaros.Packs.generate_basic()
+    lobby |> Enum.each(fn (user) ->
+      user_cards = Ragnaros.Game.Selection.cards_for_user_and_game(user, game_id)
+      cards = user_cards ++ basic_cards
+      GenServer.cast(__MODULE__, {:notify_draft_finished, user_id, game_id, cards})
+    end)
+  end
+
   def notify_game_canceled(user_id) do
     GenServer.cast(__MODULE__, {:notify_canceled, user_id})
   end
@@ -26,6 +35,12 @@ defmodule Ragnaros.Registry do
     lobby |> Enum.each(fn user ->
       GenServer.cast(__MODULE__, {:notify_started, user, game_id})
     end )
+  end
+
+  def notify_draft(lobby, draft_cards) do
+    lobby |> Enum.each(fn user_id ->
+      GenServer.cast(__MODULE__, {:notify_draft_cards, user_id, draft_cards[user_id]})
+    end)
   end
 
   def notify_draft(lobby, draft_cards) do
