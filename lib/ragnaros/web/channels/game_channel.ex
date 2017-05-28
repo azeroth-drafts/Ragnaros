@@ -18,12 +18,12 @@ defmodule Ragnaros.Web.GameChannel do
 
   def handle_in("selected", %{"token" => id, "cardId" => card_id}, socket) do
     Ragnaros.Tavern.selected(id, card_id)
-    {:ok, socket}
+    {:noreply, socket}
   end
 
   def handle_in("deck", %{"token" => id, "cards" => cards}, socket) do
     Ragnaros.Tavern.save_deck(id, cards)
-    {:ok, socket}
+    {:noreply, socket}
   end
 
   def handle_info({:draft, cards}, socket) do
@@ -32,11 +32,11 @@ defmodule Ragnaros.Web.GameChannel do
   end
 
   def handle_info({:draft_finish, cards}, socket) do
-    push socket, "draft_finish", %{cards: trim(cards)}
+    push socket, "draft_finish", %{cards: trim( cards )}
     {:noreply, socket}
   end
 
   defp trim(cards) do
-    cards |> Enum.map(&Map.from_struct/1) |> Enum.map(&Map.delete(&1, :__meta__)) |> IO.inspect
+    cards |> Enum.map(&Map.from_struct/1) |> Enum.map(&Map.delete(&1, :__meta__))
   end
 end

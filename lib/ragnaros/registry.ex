@@ -9,7 +9,8 @@ defmodule Ragnaros.Registry do
     basic_cards = Ragnaros.Packs.generate_basic()
     lobby |> Enum.each(fn (user) ->
       user_cards = Ragnaros.Game.Selection.cards_for_user_and_game(user, game_id)
-      cards = user_cards ++ basic_cards
+      cards =
+        basic_cards
       GenServer.cast(__MODULE__, {:notify_draft_finished, user, game_id, cards})
     end)
   end
@@ -68,7 +69,6 @@ defmodule Ragnaros.Registry do
   end
 
   def handle_cast({:notify_draft_cards, user_id, cards}, state) do
-    IO.inspect cards
     channel_pid = state[user_id]
     send(channel_pid, {:draft, cards})
     {:noreply, state}
@@ -76,7 +76,8 @@ defmodule Ragnaros.Registry do
 
   def handle_cast({:notify_draft_finished, user_id, game_id, cards}, state) do
     channel_pid = state[user_id]
-    send(channel_pid, {:draft_finished, cards})
+    send(channel_pid, {:draft_finish, cards})
+    IO.inspect cards
     {:noreply, state}
   end
 end

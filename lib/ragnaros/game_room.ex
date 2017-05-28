@@ -120,7 +120,7 @@ defmodule GameRoom do
       |> Enum.drop(1)
       |> Enum.take(@lobby)
 
-    new = update_in(state, [:lobby], new_lobby)
+    new = Map.put(state, :lobby, new_lobby)
     Ragnaros.Registry.notify_draft(state[:lobby], state[:draft_cards])
 
     {:noreply, new}
