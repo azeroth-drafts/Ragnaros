@@ -12,8 +12,7 @@ defmodule Ragnaros.Tavern do
   end
 
   def connected?(user_id) do
-    {:ok, result} = GenServer.call(__MODULE__, {:is_connected, user_id})
-    result
+    GenServer.call(__MODULE__, {:is_connected, user_id})
   end
 
   def accepted(id) do
