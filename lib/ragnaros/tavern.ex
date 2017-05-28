@@ -38,7 +38,7 @@ defmodule Ragnaros.Tavern do
   end
 
   def handle_call({:is_connected, user_id}, _from, {in_lobby, in_game} = state) do
-    result = List.member?(in_lobby, user_id) || Map.has_key?(in_game, user_id)
+    result = Enum.member?(in_lobby, user_id) || Map.has_key?(in_game, user_id)
     {:reply, result, state}
   end
 
