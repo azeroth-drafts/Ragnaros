@@ -8,7 +8,7 @@ defmodule Ragnaros.Tavern do
   # Client API
 
   def start_link() do
-    GenServer.start_link(__MODULE__, nil, name: {:global, 1})
+    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
   def connected?(user_id) do
