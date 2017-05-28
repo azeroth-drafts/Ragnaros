@@ -59,9 +59,9 @@ defmodule Ragnaros.Tavern do
     in_lobby = [user_id | in_lobby]
     Registry.register(user_id, channel_pid) #cast
     if length(Map.keys(in_lobby)) == @full_lobby do
-      {:ok, game_pid, game_id} = join_game(in_lobby)
+      {:ok, game_pid} = join_game(in_lobby)
       lobby_users_with_game = Enum.reduce(in_lobby, %{}, fn el, map ->
-        Ragnaros.Tavern.notify_game_found(el, game_pid)
+        Ragnaros.Registry.notify_game_found(el)
         put_in(map, [el], game_pid)
       end)
       {:noreply, {[], Map.merge(in_game, lobby_users_with_game)}}

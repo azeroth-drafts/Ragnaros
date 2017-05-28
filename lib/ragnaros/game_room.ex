@@ -9,6 +9,10 @@ defmodule GameRoom do
     GenServer.cast(game_pid, {:accepted, user_id})
   end
 
+  def get_id(pid) do
+    GenServer.call(pid, :get_game_id)
+  end
+
   def reject(game_pid, user_id) do
     GenServer.cast(game_pid, {:reject, user_id})
   end
@@ -20,8 +24,13 @@ defmodule GameRoom do
   # Server callbacks
   #
   def init(lobby) do
-    Ragnaros.Repo.insert(%Ragnaros.Game.Instance{players: lobby})
-    {:ok, %{accepted: %{}, lobby: lobby}}
+    {:ok, game} = Ragnaros.Repo.insert(%Ragnaros.Game.Instance{players: lobby})
+
+    {:ok, %{accepted: %{}, lobby: lobby, game_id: game.id}}
+  end
+
+  def handle_call(:get_game_id, state) do
+    {:ok, state[:game_id], state}
   end
 
   def handle_cast({:accepted, user_id}, state) do
@@ -29,7 +38,7 @@ defmodule GameRoom do
     accepted = 1 + accepted_hash |> Map.keys |> length
 
     if accepted == 4 do
-      Ragnaros.Registry.notify_game_started(state[:lobby])
+      Ragnaros.Registry.notify_game_started(state[:lobby], state.game_id)
     end
 
     new = put_in(state, [:accepted, user_id], accepted)
@@ -43,9 +52,5 @@ defmodule GameRoom do
       Ragnaros.Tavern.remove_user(user)
     end)
     {:noreply, state}
-  end
-
-  def handle_cast(:ready, state) do
-    # Handle once ready
   end
 end
