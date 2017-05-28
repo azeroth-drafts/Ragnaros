@@ -16,11 +16,12 @@ defmodule Ragnaros.Web.TavernChannel do
 
   def handle_in("accept", %{"token" => id}, socket) do
     Ragnaros.Tavern.accept(id)
-    {:noreply, Phoenix.Socket.t}
+    {:ok, socket}
   end
 
   def handle_in("reject", %{"token" => id}, socket) do
     Ragnaros.Tavern.reject(id)
+    {:ok, socket}
   end
 
   def handle_info(:game_found, socket) do
@@ -28,8 +29,9 @@ defmodule Ragnaros.Web.TavernChannel do
     {:noreply, socket}
   end
 
-  def handle_info(:game_canceled, socket) do
+  def handle_info({:game_canceled, id}, socket) do
     push socket, "game_canceled", %{}
+    Ragnaros.Tavern.join({id, self()})
     {:noreply, socket}
   end
 
