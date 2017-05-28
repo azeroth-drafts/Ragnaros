@@ -1,7 +1,7 @@
 defmodule Ragnaros.Web.AuthController do
   use Ragnaros.Web, :controller
 
-  @socket "ws://localhost:4000/ws"
+  @socket "ws://localhost:4000"
 
   def auth(conn, %{"user" => user_name}) do
     user = Ragnaros.Repo.get_by(Ragnaros.Accounts.User, name: user_name)
@@ -12,7 +12,7 @@ defmodule Ragnaros.Web.AuthController do
             Ragnaros.Repo.insert! %Ragnaros.Accounts.User{name: user_name}
           success(user.id)
 
-        connected?(user) ->
+        Ragnaros.Tavern.connected?(user.id) ->
           fail ("User `" <> user.name <> "` already logged in!")
 
         true ->
@@ -39,10 +39,6 @@ defmodule Ragnaros.Web.AuthController do
 
   defp user_exists?(user) do
     user != nil
-  end
-
-  defp connected?(user) do
-    false
   end
 
   defp success(token) do
