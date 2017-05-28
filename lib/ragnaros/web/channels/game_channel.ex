@@ -27,12 +27,13 @@ defmodule Ragnaros.Web.GameChannel do
   end
 
   def handle_info({:draft, cards}, socket) do
-    push socket, "draft", cards
+    push socket, "draft", %{cards: cards}
+    IO.inspect cards
     {:noreply, socket}
   end
 
   def handle_info({:draft_finish, cards}, socket) do
-    push socket, "draft_finish", cards
+    push socket, "draft_finish", %{cards: cards}
     {:noreply, socket}
   end
 end

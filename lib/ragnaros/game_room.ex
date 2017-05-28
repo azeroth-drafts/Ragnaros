@@ -96,7 +96,7 @@ defmodule GameRoom do
 
   def handle_info(:draft_finish, state) do
     game_id = state[:game_id]
-    Tavern.Registry.notify_draft_finished(state.lobby, game_id)
+    Ragnaros.Registry.notify_draft_finished(state.lobby, game_id)
   end
 
   def handle_info(:registered, state) do
@@ -105,7 +105,7 @@ defmodule GameRoom do
         Map.merge(acc, %{x => Ragnaros.Packs.generate_pack})
       end)
     end)
-    Tavern.Registry.notify_draft(state[:lobby], state[:draft_cards])
+    Ragnaros.Registry.notify_draft(state[:lobby], state[:draft_cards])
 
     {:noreply, new}
   end
@@ -113,7 +113,7 @@ defmodule GameRoom do
   def handle_info(:removed, state) do
     new_lobby = state.lobby ++ state.lobby |> Enum.drop(1) |> Enum.take(@lobby)
     new = update_in(state, [:lobby], new_lobby)
-    Tavern.Registry.notify_draft(state[:lobby], state[:draft_cards])
+    Ragnaros.Registry.notify_draft(state[:lobby], state[:draft_cards])
 
     {:noreply, new}
   end

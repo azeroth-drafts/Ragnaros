@@ -10,7 +10,7 @@ defmodule Ragnaros.Registry do
     lobby |> Enum.each(fn (user) ->
       user_cards = Ragnaros.Game.Selection.cards_for_user_and_game(user, game_id)
       cards = user_cards ++ basic_cards
-      GenServer.cast(__MODULE__, {:notify_draft_finished, user_id, game_id, cards})
+      GenServer.cast(__MODULE__, {:notify_draft_finished, user, game_id, cards})
     end)
   end
 
@@ -19,7 +19,7 @@ defmodule Ragnaros.Registry do
     lobby |> Enum.each(fn (user) ->
       user_cards = Ragnaros.Game.Selection.cards_for_user_and_game(user, game_id)
       cards = user_cards ++ basic_cards
-      GenServer.cast(__MODULE__, {:notify_draft_finished, user_id, game_id, cards})
+      GenServer.cast(__MODULE__, {:notify_draft_finished, user, game_id, cards})
     end)
   end
 
