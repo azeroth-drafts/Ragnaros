@@ -17,6 +17,14 @@ defmodule Ragnaros.Tavern do
     GenServer.call(__MODULE__, {:is_connected, user_id})
   end
 
+  def selected(user_id, card_id) do
+    GenServer.cast(__MODULE__, {:select_card, user_id, card_id})
+  end
+
+  def registered(user_id) do
+    GenServer.cast(__MODULE__, {:registered, user_id})
+  end
+
   def remove_user(id) do
     GenServer.cast(__MODULE__, {:remove_user, id})
   end
@@ -91,4 +99,16 @@ defmodule Ragnaros.Tavern do
     end)
     {:noreply, {list, Map.merge(in_game, lobby_users_with_game)}}
   end
+
+  def handle_cast({:registered, user_id}, {_, in_game}) do
+    game_pid = in_game[user_id]
+    GameRoom.registered(game_pid)
+  end
+
+  def handle_cast({:select_card, user_id, card_id}, {_, in_game} = state) do
+    game_pid = in_game[user_id]
+    GameRoom.save_selection(game_pid, user_id, card_id)
+    {:noreply, state}
+  end
 end
+

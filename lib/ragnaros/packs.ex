@@ -1,5 +1,5 @@
 defmodule Ragnaros.Packs do
-  def generate_pack(id) do
+  def generate_pack(_id) do
     cards =
     Ragnaros.Game.list_cards
     |> Enum.filter(fn card -> card.cardSet != "Basic" end)
