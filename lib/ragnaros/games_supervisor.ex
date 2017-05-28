@@ -7,7 +7,8 @@ defmodule Ragnaros.GamesSupervisor do
 
   def init(_) do
     children = [
-      worker(Ragnaros.Tavern, [])
+      worker(Ragnaros.Tavern, []),
+      worker(Ragnaros.Registry, [])
     ]
 
     opts = [strategy: :one_for_one]
